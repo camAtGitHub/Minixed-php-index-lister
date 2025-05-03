@@ -351,11 +351,119 @@
 		#footer a:hover {
 			color: #999999;
 		}
+
+        #search-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        #search {
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc; /* Added a minor border */
+            border-radius: 4px; /* Optional: Slightly rounded corners */
+        }
+
+        /* Responsive design for different screen sizes */
+        @media (max-width: 375px) { /* iPhone 6 width */
+            #wrapper {
+                max-width: 100%;
+                margin: 0 10px;
+            }
+
+            ul li {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            ul li .date, ul li .size {
+                width: 80px;
+            }
+
+            ul li .name {
+                font-size: 14px;
+            }
+        }
+
+        @media (min-width: 1024px) { /* 16:9 monitors */
+            #wrapper {
+                max-width: 1200px; /* Adjusted to better utilize screen width */
+                margin: 0 auto;
+            }
+
+            ul li {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            ul li .date, ul li .size {
+                width: 150px; /* Increased width for better spacing */
+            }
+
+            ul li .name {
+                font-size: 16px;
+            }
+        }
 		
 	</style>
 	
+	<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search');
+            const listItems = document.querySelectorAll('ul li.item');
+
+            // Focus search input with Ctrl + K
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+
+            // Clear search with Escape
+            searchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    filterList('');
+                }
+            });
+
+            // Filter list based on search query
+            searchInput.addEventListener('input', function () {
+                filterList(searchInput.value);
+            });
+
+            function filterList(query) {
+                const regex = globToRegex(query);
+                listItems.forEach(item => {
+                    const name = item.querySelector('a.name').textContent;
+                    if (regex.test(name)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+
+            function globToRegex(glob) {
+                let regexStr = glob
+                    .replace(/\^/g, '^') // Start of string
+                    .replace(/\$/g, '$') // End of string
+                    .replace(/\|/g, '|') // OR operator
+                    .replace(/\*/g, '.*') // Wildcard
+                    .replace(/\?/g, '.'); // Single character
+                return new RegExp(regexStr, 'i');
+            }
+        });
+    </script>
+	
 </head>
 <body <?php if ($alignment == 'left') echo 'id="left"' ?>>
+
+    <div id="search-container">
+        <input type="text" id="search" placeholder="Search... (Ctrl + K)" />
+    </div>
 
 	<div id="wrapper">
 		
